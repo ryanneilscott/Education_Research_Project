@@ -1,0 +1,134 @@
+
+
+-- We began the project with determining the number of graduates from the school district. We found that out of 1000 students, 853 students had graduated,
+  for a graduation rate of 85.3%
+
+SELECT 
+    d.Graduated,
+    COUNT(DISTINCT d.Student_ID) AS Num_Students,
+    ROUND(AVG(d.Household_Income),2) AS Avg_Household_Income,
+    ROUND(AVG(a.Test_Score),2) AS Avg_Test_Scores
+
+FROM `annular-net-337304.Hanover_Research.Demographics` as d
+
+LEFT JOIN `annular-net-337304.Hanover_Research.ACT_Scores` as a
+
+USING(Student_ID)
+
+WHERE Graduated IS NOT NULL
+
+GROUP BY Graduated;
+
+
+
+-- We looked at Graduation numbers by Ethicity
+
+SELECT 
+    Ethnicity,
+
+    COUNT(Ethnicity) As Num_of_Students,
+
+    COUNT(CASE WHEN Graduated = 1 THEN 'Graduated' ELSE NULL END) AS Graduated,
+
+    COUNT(CASE WHEN Graduated = 0 THEN 'Not Graduated' ELSE NULL END) AS Not_Graduated,
+
+
+FROM `annular-net-337304.Hanover_Research.Demographics` 
+
+GROUP BY Ethnicity
+
+ORDER BY Ethnicity;
+
+
+--
+
+SELECT 
+    a.Test_Date,
+    MIN(a.Test_Score) As Lowest_Score,
+    MAX(a.Test_Score) As Highest_Score,
+    MAX(a.Test_Score)-MIN(a.Test_Score) As Range_of_Scores,
+    ROUND(AVG(a.Test_Score),2) As Avg_Test_Score
+
+FROM `annular-net-337304.Hanover_Research.Demographics` as d
+
+LEFT JOIN `annular-net-337304.Hanover_Research.ACT_Scores` as a
+
+USING(Student_ID)
+
+WHERE Student_ID IS NOT NULL 
+AND Test_Date IS NOT NULL
+
+GROUP BY a.Test_Date
+
+ORDER BY a.Test_Date;
+
+
+
+-- 
+
+SELECT 
+    Graduated,
+
+    COUNT(DISTINCT Student_ID) AS Num_Students,
+
+    (COUNT(CASE WHEN Household_Income <= 30000
+                THEN Household_Income
+                ELSE NULL END)) AS Income_From_0_to_30000,
+
+    (COUNT(CASE WHEN Household_Income > 30000 AND Household_Income <= 60000
+                THEN Household_Income
+                ELSE NULL END)) AS Income_From_30001_to_60000,
+
+    (COUNT(CASE WHEN Household_Income > 60000 AND Household_Income <= 90000
+                THEN Household_Income
+                ELSE NULL END)) AS Income_From_60001_to_90000,
+
+    (COUNT(CASE WHEN Household_Income > 90000
+                THEN Household_Income
+                ELSE NULL END)) AS Income_Greater_Than_90000
+
+FROM `annular-net-337304.Hanover_Research.Demographics`
+
+WHERE Graduated IS NOT NULL
+
+GROUP BY Graduated;
+
+
+
+--
+
+SELECT
+  c.Course,
+  
+  c.AP_Class,
+  
+  ROUND(AVG(CASE WHEN c.Letter_Grade = 'A' THEN 4
+        WHEN c.Letter_Grade = 'B' THEN 3
+        WHEN c.Letter_Grade = 'C' THEN 2
+        WHEN c.Letter_Grade = 'D' THEN 1
+        WHEN c.Letter_Grade = 'F' THEN 0
+        ELSE NULL END),2) 
+        AS Avg_GPA,
+  
+  COUNT(CASE WHEN d.Graduated = 1 THEN 'Graduated' ELSE NULL END) AS Num_of_Graduates,
+  
+  COUNT(CASE WHEN d.Graduated = 0 THEN 'Not Graduated' ELSE NULL END) Num_Not_Graduated,
+
+  ROUND(AVG(a.Test_Score),2) as Avg_ACT_Score
+
+FROM
+  `annular-net-337304.Hanover_Research.Courses` as c
+
+LEFT JOIN `annular-net-337304.Hanover_Research.Demographics` as d
+
+USING(Student_ID)
+
+LEFT JOIN `annular-net-337304.Hanover_Research.ACT_Scores` as a 
+
+USING(Student_ID)
+
+GROUP BY
+  c.Course, c.AP_Class
+
+ORDER BY
+  c.Course, Avg_GPA DESC
