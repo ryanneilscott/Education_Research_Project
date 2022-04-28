@@ -132,3 +132,114 @@ GROUP BY
 
 ORDER BY
   c.Course, Avg_GPA DESC
+
+
+
+--
+
+SELECT 
+    c.Course,
+
+    c.AP_Class,
+
+    d.Graduated,
+
+    COUNT(DISTINCT Student_ID) AS Num_Students,
+
+    ROUND(AVG(a.Test_Score),2) AS Avg_Test_Score,
+    
+    ROUND(AVG(CASE WHEN c.Letter_Grade = 'A' THEN 4
+        WHEN c.Letter_Grade = 'B' THEN 3
+        WHEN c.Letter_Grade = 'C' THEN 2
+        WHEN c.Letter_Grade = 'D' THEN 1
+        WHEN c.Letter_Grade = 'F' THEN 0
+        ELSE NULL END),2) 
+        AS Avg_GPA
+
+FROM `annular-net-337304.Hanover_Research.Demographics` as d
+
+LEFT JOIN `annular-net-337304.Hanover_Research.Courses` as c
+
+USING(Student_ID)
+
+LEFT JOIN annular-net-337304.Hanover_Research.ACT_Scores as a
+
+USING(Student_ID)
+
+WHERE AP_Class IS NOT NULL AND
+  Household_Income > 30000 AND Household_Income <= 60000
+
+GROUP BY c.Course, c.AP_Class, d.Graduated
+
+ORDER BY c.Course
+
+
+
+--
+
+SELECT
+  d.Graduated,
+
+  c.Course,
+
+  c.AP_Class,
+
+  COUNT(DISTINCT d.Student_ID) As Num_of_Students,
+
+  ROUND(AVG(CASE WHEN c.Letter_Grade = 'A' THEN 4
+        WHEN c.Letter_Grade = 'B' THEN 3
+        WHEN c.Letter_Grade = 'C' THEN 2
+        WHEN c.Letter_Grade = 'D' THEN 1
+        WHEN c.Letter_Grade = 'F' THEN 0
+        ELSE NULL END),2) 
+        AS Avg_GPA,
+
+  ROUND(AVG(Test_Score),2) AS Avg_ACT_Score
+
+FROM `annular-net-337304.Hanover_Research.Demographics` as d
+
+LEFT JOIN `annular-net-337304.Hanover_Research.Courses` as c
+
+USING(Student_ID)
+
+LEFT JOIN `annular-net-337304.Hanover_Research.ACT_Scores` as a
+
+USING(Student_ID)
+
+WHERE Special_Ed = true
+
+GROUP BY Graduated, c.Course, c.AP_Class
+
+
+
+--
+
+SELECT
+  d.Graduated, 
+
+  COUNT(DISTINCT d.STUDENT_ID) As Num_of_Students,
+
+  ROUND(AVG(CASE WHEN c.Letter_Grade = 'A' THEN 4
+        WHEN c.Letter_Grade = 'B' THEN 3
+        WHEN c.Letter_Grade = 'C' THEN 2
+        WHEN c.Letter_Grade = 'D' THEN 1
+        WHEN c.Letter_Grade = 'F' THEN 0
+        ELSE NULL END),2) 
+        AS Avg_GPA,
+
+  ROUND(AVG(a.Test_Score),2) As Avg_ACT_Score
+
+FROM `annular-net-337304.Hanover_Research.Demographics` as d
+
+LEFT JOIN `annular-net-337304.Hanover_Research.Courses` as c
+
+USING(Student_ID)
+
+LEFT JOIN `annular-net-337304.Hanover_Research.ACT_Scores` as a
+
+USING(Student_ID)
+
+WHERE Course = 'Athletics'
+
+GROUP BY
+  d.Graduated
